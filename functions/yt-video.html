@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>播放 YT 影片</title><style>body{font:18px system-ui;margin:24px auto;padding:0 16px;max-width:720px}input,button{box-sizing:border-box;font:inherit;padding:12px;margin-top:8px}input,iframe{width:100%}iframe{border:0;aspect-ratio:16/9}button{background:#174ab6;color:white;border:0;border-radius:8px}</style>
+<main><a href="../">回首頁</a><h1>播放 YT 影片</h1>
+<form><label for="link">從備忘錄複製 YouTube 連結，貼在這裡。</label>
+<input id="link" inputmode="url" autocomplete="off" placeholder="https://youtu.be/…" required><button>載入影片</button></form>
+<p id="status" role="status"></p><div id="player"></div></main>
+<script>
+function videoId(value) {
+  const url = new URL(value.trim());
+  if (!['https:', 'http:'].includes(url.protocol)) return '';
+  const [, section, id] = url.pathname.split('/');
+  if (url.hostname === 'youtu.be') return section;
+  if (!['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(url.hostname)) return '';
+  if (section === 'watch') return url.searchParams.get('v');
+  if (['shorts', 'live', 'embed'].includes(section)) return id;
+  return '';
+}
+document.querySelector('form').addEventListener('submit', event => {
+  event.preventDefault();
+  const status = document.querySelector('#status');
+  const player = document.querySelector('#player');
+  let id;
+  try { id = videoId(document.querySelector('#link').value); } catch {}
+  player.replaceChildren();
+  if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) {
+    status.textContent = '請貼上一支 YouTube 影片的完整連結。';
+    return;
+  }
+  const frame = document.createElement('iframe');
+  frame.src = 'https://www.youtube.com/embed/' + id;
+  frame.title = 'YouTube 播放器';
+  frame.allow = 'encrypted-media; picture-in-picture; fullscreen';
+  frame.allowFullscreen = true;
+  frame.referrerPolicy = 'strict-origin-when-cross-origin';
+  player.append(frame);
+  status.textContent = '請在播放器按播放。';
+});
+</script></html>
